@@ -60,13 +60,13 @@ let reshape ctx dims vals =
     let reshapeIt adims =
         let count = List.fold (*) 1 adims 
         match vals with
-        | Array elms -> if elms.Elements.Length <> count
-                        then if count % elms.Elements.Length = 0
+        | Array elms -> if elms.Elements.Length = count
+                        then Ok <| new farray( adims, elms.Elements )
+                        else if count % elms.Elements.Length = 0
                              then Ok <| new farray( adims,
                                    [| for i in 0 .. count - 1 ->
                                       elms.Elements.[ i % elms.Elements.Length ] |] )
                              else Err <| UnshapableError ("reshape", elms.Dimensions, adims)
-                        else Ok <| new farray( adims, elms.Elements )
         | Integer v  -> Ok <| new farray( adims, [| for _ in 0 .. count - 1 -> Integer v |] )
         | _ -> Err <| TypeError ("reshape", typeOf vals, Type.Or (Type.Array, Type.Integer))
 
